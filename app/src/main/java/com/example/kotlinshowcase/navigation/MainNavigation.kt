@@ -31,8 +31,7 @@ fun MainNavigation(
         composable(Screen.AMIIBO_ROUTE) {
             val amiiboViewModel: AmiiboListViewModel = koinViewModel()
             AmiiboNavigation(
-                viewModel = amiiboViewModel,
-                onBackClick = { navController.popBackStack() }
+                viewModel = amiiboViewModel
             )
         }
         
