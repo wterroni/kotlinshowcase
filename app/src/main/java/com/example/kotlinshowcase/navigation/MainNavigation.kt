@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.kotlinshowcase.feature.amiibo.navigation.AmiiboNavigation
 import com.example.kotlinshowcase.feature.amiibo.presentation.viewmodel.AmiiboListViewModel
 import com.example.kotlinshowcase.feature.home.presentation.ui.screen.HomeScreen
+import com.example.kotlinshowcase.feature.password.presentation.screen.PasswordGeneratorScreen
 import com.example.kotlinshowcase.feature.textutils.presentation.ui.screen.TextUtilsScreen
 import org.koin.androidx.compose.koinViewModel
 
@@ -64,8 +65,9 @@ fun MainNavigation(
         
         // Password Generator Feature
         composable(Screen.PASSWORD_GENERATOR_ROUTE) {
-            // TODO: Implementar tela de PasswordGenerator
-            Text("Password Generator - Em breve")
+            PasswordGeneratorScreen(
+                onBackClick = { navController.popBackStack() }
+            )
         }
     }
 }

@@ -2,9 +2,12 @@ package com.example.kotlinshowcase.core.app
 
 import android.app.Application
 import android.util.Log
+import androidx.compose.runtime.Composable
 import com.example.kotlinshowcase.di.appModule
+import com.example.kotlinshowcase.feature.textutils.di.textUtilsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.compose.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
@@ -23,7 +26,10 @@ class MainApplication : Application() {
                 androidLogger(Level.ERROR)
                 androidContext(this@MainApplication)
                 // Carrega os módulos do Koin
-                modules(appModule)
+                modules(
+                    appModule,
+                    textUtilsModule
+                )
             }
             
             Log.d("MainApplication", "Koin initialized successfully!")
@@ -31,5 +37,19 @@ class MainApplication : Application() {
             Log.e("MainApplication", "Error initializing Koin: ${e.message}", e)
             throw e
         }
+    }
+}
+
+/**
+ * Koin application wrapper for Compose
+ */
+@Composable
+fun KoinApp(
+    content: @Composable () -> Unit
+) {
+    KoinApplication(application = {
+        modules(appModule)
+    }) {
+        content()
     }
 }

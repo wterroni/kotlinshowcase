@@ -12,8 +12,8 @@ sealed class Screen(val route: String) {
         const val PASSWORD_GENERATOR_ROUTE = "password_generator"
     }
     
-    object Home : Screen(HOME_ROUTE)
-    object Amiibo : Screen(AMIIBO_ROUTE)
-    object TextUtils : Screen(TEXT_UTILS_ROUTE)
-    object PasswordGenerator : Screen(PASSWORD_GENERATOR_ROUTE)
+    data object Home : Screen(HOME_ROUTE)
+    data object Amiibo : Screen(AMIIBO_ROUTE)
+    data object TextUtils : Screen(TEXT_UTILS_ROUTE)
+    data object PasswordGenerator : Screen(PASSWORD_GENERATOR_ROUTE)
 }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.example.kotlinshowcase.core.app.KoinApp
 import com.example.kotlinshowcase.core.theme.KotlinShowcaseTheme
 import com.example.kotlinshowcase.navigation.MainNavigation
 
@@ -15,12 +16,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         
         setContent {
-            KotlinShowcaseTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    MainNavigation()
+            KoinApp {
+                KotlinShowcaseTheme {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        MainNavigation()
+                    }
                 }
             }
         }

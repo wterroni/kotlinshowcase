@@ -2,6 +2,8 @@ package com.example.kotlinshowcase.di
 
 import com.example.kotlinshowcase.core.di.networkModule
 import com.example.kotlinshowcase.feature.amiibo.di.amiiboModule
+import com.example.kotlinshowcase.feature.password.di.passwordModule
+import com.example.kotlinshowcase.feature.textutils.di.textUtilsModule
 import org.koin.dsl.module
 
 /**
@@ -11,6 +13,8 @@ import org.koin.dsl.module
 val appModule = module {
     includes(
         networkModule,
-        amiiboModule
+        amiiboModule,
+        passwordModule,
+        textUtilsModule
     )
 }
