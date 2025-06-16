@@ -6,6 +6,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import com.example.kotlinshowcase.feature.amiibo.domain.model.Amiibo
 import com.example.kotlinshowcase.feature.amiibo.domain.repository.AmiiboRepository
 import com.example.kotlinshowcase.feature.amiibo.paging.AmiiboPagingSource
@@ -13,6 +14,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 class AmiiboListViewModel(
     private val repository: AmiiboRepository
@@ -20,40 +23,52 @@ class AmiiboListViewModel(
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
-    
-    private var currentAmiibos: Flow<PagingData<Amiibo>>? = null
-    
-    fun getAmiibos(query: String = ""): Flow<PagingData<Amiibo>> {
-        val lastAmiibos = currentAmiibos
-        if (query == _searchQuery.value && lastAmiibos != null) {
-            return lastAmiibos
-        }
-        
-        _searchQuery.value = query
-        
-        return Pager(
-            config = PagingConfig(
-                pageSize = 20,
-                enablePlaceholders = false,
-                initialLoadSize = 40
-            ),
-            pagingSourceFactory = { AmiiboPagingSource(repository, query.ifEmpty { null }) }
-        )
-            .flow
-            .cachedIn(viewModelScope)
-            .also { currentAmiibos = it }
+
+    private val _amiibos = MutableStateFlow<PagingData<Amiibo>>(PagingData.empty())
+    val amiibos: StateFlow<PagingData<Amiibo>> = _amiibos.asStateFlow()
+
+    init {
+        loadAllAmiibos()
     }
-    
+
+    private fun loadAllAmiibos() {
+        viewModelScope.launch {
+            Pager(
+                config = PagingConfig(
+                    pageSize = 100,
+                    enablePlaceholders = false,
+                    initialLoadSize = 200
+                ),
+                pagingSourceFactory = { AmiiboPagingSource(repository) }
+            ).flow
+                .cachedIn(viewModelScope)
+                .collect { pagingData ->
+                    _amiibos.value = pagingData
+                }
+        }
+    }
+
+    fun getAmiibos(query: String = ""): Flow<PagingData<Amiibo>> {
+        _searchQuery.value = query
+
+        return if (query.isBlank()) {
+            amiibos
+        } else {
+            amiibos.map { pagingData ->
+                pagingData.filter { amiibo ->
+                    amiibo.name.contains(query, ignoreCase = true) ||
+                            amiibo.character.contains(query, ignoreCase = true) ||
+                            amiibo.gameSeries.contains(query, ignoreCase = true)
+                }
+            }
+        }
+    }
+
     fun onSearchQueryChanged(query: String) {
         _searchQuery.value = query
     }
     
-    /**
-     * Notifies the ViewModel that the error has been shown to the user
-     * and can be cleared.
-     */
-    fun onErrorShown() {
-        // This method is called when the error is shown to the user
-        // and can be used to clear any error state if needed
+    fun refresh() {
+        loadAllAmiibos()
     }
 }

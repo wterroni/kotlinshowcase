@@ -5,10 +5,10 @@ import androidx.paging.PagingState
 import com.example.kotlinshowcase.feature.amiibo.domain.model.Amiibo
 import com.example.kotlinshowcase.feature.amiibo.domain.repository.AmiiboRepository
 import java.io.IOException
+import kotlin.math.min
 
 class AmiiboPagingSource(
-    private val repository: AmiiboRepository,
-    private val query: String? = null
+    private val repository: AmiiboRepository
 ) : PagingSource<Int, Amiibo>() {
 
     override fun getRefreshKey(state: PagingState<Int, Amiibo>): Int? {
@@ -23,23 +23,18 @@ class AmiiboPagingSource(
             val page = params.key ?: 0
             val pageSize = params.loadSize
             
-            // Busca todos os amiibos ou faz a busca se houver query
-            val allAmiibos = if (query.isNullOrBlank()) {
-                repository.getAmiibos()
-            } else {
-                repository.searchAmiibos(query)
-            }
+            // Busca todos os amiibos uma única vez
+            val allAmiibos = repository.getAmiibos()
             
             // Se a lista estiver vazia, retorna página vazia
             if (allAmiibos.isEmpty()) {
                 return LoadResult.Page(
                     data = emptyList(),
-                    prevKey = null,
+                    prevKey = if (page == 0) null else page - 1,
                     nextKey = null
                 )
             }
             
-            // Calcula o range de itens para a página atual
             val fromIndex = page * pageSize
             if (fromIndex >= allAmiibos.size) {
                 return LoadResult.Page(
@@ -49,7 +44,7 @@ class AmiiboPagingSource(
                 )
             }
             
-            val toIndex = minOf(fromIndex + pageSize, allAmiibos.size)
+            val toIndex = min(fromIndex + pageSize, allAmiibos.size)
             val pageAmiibos = allAmiibos.subList(fromIndex, toIndex)
             
             LoadResult.Page(
@@ -57,8 +52,9 @@ class AmiiboPagingSource(
                 prevKey = if (page == 0) null else page - 1,
                 nextKey = if (toIndex < allAmiibos.size) page + 1 else null
             )
+        } catch (e: IOException) {
+            LoadResult.Error(e)
         } catch (e: Exception) {
-            // Propaga o erro para ser tratado pelo ViewModel
             LoadResult.Error(e)
         }
     }

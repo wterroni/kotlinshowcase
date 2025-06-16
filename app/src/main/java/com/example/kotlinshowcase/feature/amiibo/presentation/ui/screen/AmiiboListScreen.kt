@@ -64,7 +64,6 @@ import coil.compose.AsyncImage
 import com.example.kotlinshowcase.R
 import com.example.kotlinshowcase.feature.amiibo.domain.model.Amiibo
 import com.example.kotlinshowcase.feature.amiibo.presentation.viewmodel.AmiiboListViewModel
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import java.io.IOException
 
@@ -82,58 +81,22 @@ fun AmiiboListScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    val amiibos = viewModel.getAmiibos(debouncedSearchQuery).collectAsLazyPagingItems()
-
     LaunchedEffect(searchQuery) {
-        kotlinx.coroutines.delay(500) // 500ms de atraso
+        kotlinx.coroutines.delay(300)
         debouncedSearchQuery = searchQuery
     }
 
-    LaunchedEffect(debouncedSearchQuery) {
-        viewModel.onSearchQueryChanged(debouncedSearchQuery)
-    }
+    val amiibos = viewModel.getAmiibos(debouncedSearchQuery).collectAsLazyPagingItems()
 
-    LaunchedEffect(amiibos.loadState.refresh) {
-        if (amiibos.loadState.refresh is LoadState.Error) {
-            val errorState = amiibos.loadState.refresh as LoadState.Error
-            val errorMessage = errorState.error.message ?: context.getString(R.string.error_unknown)
-            
-            // Clear the error state first to avoid showing it multiple times
-            viewModel.onErrorShown()
-            
+    LaunchedEffect(debouncedSearchQuery) {
+        try {
+            viewModel.onSearchQueryChanged(debouncedSearchQuery)
+        } catch (e: Exception) {
+            val errorMessage = e.message ?: context.getString(R.string.error_unknown)
             scope.launch {
                 snackbarHostState.showSnackbar(
                     message = errorMessage,
                     actionLabel = context.getString(R.string.retry),
-                    duration = SnackbarDuration.Long
-                )
-            }
-        }
-    }
-    
-    // Handle retry from error state
-    val onRetryClick: () -> Unit = {
-        println("Retry button clicked")
-        try {
-            // First reset the error state
-            viewModel.onErrorShown()
-            
-            // Then trigger a retry on the paging data
-            amiibos.retry()
-            
-            // Also trigger the ViewModel retry to refresh the data
-            onRetry()
-            
-            println("Retry completed successfully")
-        } catch (e: Exception) {
-            println("Error during retry: ${e.message}")
-            e.printStackTrace()
-            
-            // Show error in snackbar
-            scope.launch {
-                snackbarHostState.showSnackbar(
-                    message = "Failed to load data. Please try again.",
-                    actionLabel = "Retry",
                     duration = SnackbarDuration.Long
                 )
             }
@@ -161,7 +124,6 @@ fun AmiiboListScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Search bar
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
@@ -236,7 +198,7 @@ fun AmiiboListScreen(
             else if (amiibos.loadState.refresh is LoadState.Error) {
                 ErrorState(
                     error = (amiibos.loadState.refresh as LoadState.Error).error,
-                    onRetry = onRetryClick,
+                    onRetry = { viewModel.refresh() },
                     modifier = Modifier.fillMaxSize()
                 )
             }
