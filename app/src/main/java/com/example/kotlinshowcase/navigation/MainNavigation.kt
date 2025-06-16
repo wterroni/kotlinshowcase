@@ -5,11 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.example.kotlinshowcase.feature.amiibo.navigation.AmiiboNavigation
 import com.example.kotlinshowcase.feature.amiibo.presentation.viewmodel.AmiiboListViewModel
 import com.example.kotlinshowcase.feature.home.presentation.ui.screen.HomeScreen
@@ -69,32 +67,5 @@ fun MainNavigation(
             // TODO: Implementar tela de PasswordGenerator
             Text("Password Generator - Em breve")
         }
-    }
-}
-
-/**
- * Define as ações de navegação disponíveis na aplicação
- */
-class MainActions(private val navController: NavHostController) {
-    fun navigateToHome() {
-        navController.navigate(Screen.HOME_ROUTE) {
-            popUpTo(Screen.HOME_ROUTE) { inclusive = true }
-        }
-    }
-    
-    fun navigateToAmiiboList() {
-        navController.navigate(Screen.AMIIBO_ROUTE)
-    }
-    
-    fun navigateToTextUtils() {
-        navController.navigate(Screen.TEXT_UTILS_ROUTE)
-    }
-    
-    fun navigateToPasswordGenerator() {
-        navController.navigate(Screen.PASSWORD_GENERATOR_ROUTE)
-    }
-    
-    fun navigateBack() {
-        navController.popBackStack()
     }
 }

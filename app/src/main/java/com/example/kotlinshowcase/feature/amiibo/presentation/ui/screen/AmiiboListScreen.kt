@@ -82,7 +82,7 @@ fun AmiiboListScreen(
             searchJob?.cancel()
             searchJob = viewModel.searchAmiibos(searchQuery)
         } else if (!isLoadingInitial) {
-            // Se a busca for limpa, recarregar a lista completa
+            // If the search is cleared, reload the complete list
             searchJob?.cancel()
             viewModel.loadAmiibos()
         }
