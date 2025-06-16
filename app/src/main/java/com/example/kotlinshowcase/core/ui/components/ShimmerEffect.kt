@@ -80,7 +80,6 @@ fun ShimmerItem(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
         ) {
-            // Placeholder da imagem
             Box(
                 modifier = Modifier
                     .width(100.dp)
@@ -88,7 +87,6 @@ fun ShimmerItem(
                     .background(brush)
             )
             
-            // Placeholder dos textos
             Column(
                 modifier = Modifier
                     .padding(12.dp)
@@ -99,7 +97,6 @@ fun ShimmerItem(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Placeholder do título
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.7f)
@@ -107,7 +104,6 @@ fun ShimmerItem(
                             .background(brush)
                     )
                     
-                    // Placeholder do subtítulo
                     Box(
                         modifier = Modifier
                             .fillMaxWidth(0.5f)
@@ -116,7 +112,6 @@ fun ShimmerItem(
                     )
                 }
                 
-                // Placeholder do rodapé
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.4f)

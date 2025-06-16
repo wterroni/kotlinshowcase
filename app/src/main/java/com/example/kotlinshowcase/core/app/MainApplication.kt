@@ -25,7 +25,7 @@ class MainApplication : Application() {
             startKoin {
                 androidLogger(Level.ERROR)
                 androidContext(this@MainApplication)
-                // Carrega os módulos do Koin
+
                 modules(
                     appModule,
                     textUtilsModule

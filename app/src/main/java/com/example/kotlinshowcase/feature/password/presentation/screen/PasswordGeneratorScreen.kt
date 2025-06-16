@@ -15,6 +15,13 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import com.example.kotlinshowcase.feature.password.domain.model.PasswordStrength
 import org.koin.androidx.compose.koinViewModel
 import com.example.kotlinshowcase.feature.password.presentation.viewmodel.PasswordGeneratorViewModel
@@ -30,6 +37,17 @@ fun PasswordGeneratorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val clipboardManager = LocalClipboardManager.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    
+    fun showError(message: String) {
+        scope.launch {
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+        }
+    }
     
     Scaffold(
         topBar = {
@@ -48,7 +66,13 @@ fun PasswordGeneratorScreen(
                 )
             )
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -58,7 +82,6 @@ fun PasswordGeneratorScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Password Display
             when (val state = uiState) {
                 is PasswordGeneratorUiState.Success -> {
                     val password = state.password
@@ -67,8 +90,8 @@ fun PasswordGeneratorScreen(
                         strength = password.strength,
                         strengthColor = when (password.strength) {
                             PasswordStrength.WEAK -> Color.Red
-                            PasswordStrength.FAIR -> Color(0xFFFFA500) // Orange
-                            PasswordStrength.GOOD -> Color(0xFF90EE90) // Light Green
+                            PasswordStrength.FAIR -> Color(0xFFFFA500)
+                            PasswordStrength.GOOD -> Color(0xFF90EE90)
                             PasswordStrength.STRONG -> Color.Green
                         },
                         onCopyClick = {
@@ -76,26 +99,28 @@ fun PasswordGeneratorScreen(
                         }
                     )
                 }
-                is PasswordGeneratorUiState.Error -> {
-                    // Show error state
-                }
-                PasswordGeneratorUiState.Loading -> {
-                    // Show loading state
-                }
+                is PasswordGeneratorUiState.Error -> {}
+                PasswordGeneratorUiState.Loading -> {}
             }
 
-            // Options Panel
             PasswordOptionsPanel(
                 options = viewModel.passwordOptions,
                 onOptionsChange = { newOptions ->
-                    viewModel.updateOptions(newOptions)
+                    try {
+                        viewModel.updateOptions(newOptions)
+                    } catch (e: IllegalArgumentException) {
+                        showError(e.message ?: "Invalid options")
+                        viewModel.generateNewPassword()
+                    }
                 },
                 onGenerateClick = {
                     viewModel.generateNewPassword()
+                },
+                onShowError = { message ->
+                    showError(message)
                 }
             )
             
-            // Tips
             Text(
                 text = "• Use at least 12 characters\n• Include numbers and symbols\n• Avoid common words or patterns",
                 style = MaterialTheme.typography.bodyMedium,

@@ -25,6 +25,7 @@ fun PasswordOptionsPanel(
     options: PasswordOptions,
     onOptionsChange: (PasswordOptions) -> Unit,
     onGenerateClick: () -> Unit,
+    onShowError: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(true) }
@@ -41,7 +42,6 @@ fun PasswordOptionsPanel(
             .padding(16.dp)
             .animateContentSize()
     ) {
-        // Header
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -65,7 +65,6 @@ fun PasswordOptionsPanel(
         }
 
         if (isExpanded) {
-            // Length slider
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,43 +95,64 @@ fun PasswordOptionsPanel(
                 )
             }
 
-            // Checkboxes for character types
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(vertical = 8.dp)
             ) {
+                val totalSelected = listOf(
+                    options.includeUppercase,
+                    options.includeLowercase,
+                    options.includeNumbers,
+                    options.includeSymbols
+                ).count { it }
+
                 PasswordOptionCheckbox(
                     label = "Uppercase (A-Z)",
                     checked = options.includeUppercase,
-                    onCheckedChange = {
-                        onOptionsChange(options.copy(includeUppercase = it))
+                    onCheckedChange = { isChecked ->
+                        if (isChecked || totalSelected > 1) {
+                            onOptionsChange(options.copy(includeUppercase = isChecked))
+                        } else {
+                            onShowError("At least one character type must be selected")
+                        }
                     }
                 )
                 PasswordOptionCheckbox(
                     label = "Lowercase (a-z)",
                     checked = options.includeLowercase,
-                    onCheckedChange = {
-                        onOptionsChange(options.copy(includeLowercase = it))
+                    onCheckedChange = { isChecked ->
+                        if (isChecked || totalSelected > 1) {
+                            onOptionsChange(options.copy(includeLowercase = isChecked))
+                        } else {
+                            onShowError("At least one character type must be selected")
+                        }
                     }
                 )
                 PasswordOptionCheckbox(
                     label = "Numbers (0-9)",
                     checked = options.includeNumbers,
-                    onCheckedChange = {
-                        onOptionsChange(options.copy(includeNumbers = it))
+                    onCheckedChange = { isChecked ->
+                        if (isChecked || totalSelected > 1) {
+                            onOptionsChange(options.copy(includeNumbers = isChecked))
+                        } else {
+                            onShowError("At least one character type must be selected")
+                        }
                     }
                 )
                 PasswordOptionCheckbox(
                     label = "Symbols (!@#\$...)",
                     checked = options.includeSymbols,
-                    onCheckedChange = {
-                        onOptionsChange(options.copy(includeSymbols = it))
+                    onCheckedChange = { isChecked ->
+                        if (isChecked || totalSelected > 1) {
+                            onOptionsChange(options.copy(includeSymbols = isChecked))
+                        } else {
+                            onShowError("At least one character type must be selected")
+                        }
                     }
                 )
             }
         }
 
-        // Generate button
         Button(
             onClick = onGenerateClick,
             modifier = Modifier
@@ -156,6 +176,7 @@ fun PasswordOptionsPanel(
 private fun PasswordOptionCheckbox(
     label: String,
     checked: Boolean,
+    enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -163,12 +184,13 @@ private fun PasswordOptionCheckbox(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) }
+            .clickable { if (enabled || checked) onCheckedChange(!checked) }
             .padding(vertical = 4.dp)
     ) {
         Checkbox(
             checked = checked,
             onCheckedChange = null,
+            enabled = enabled,
             modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -186,6 +208,7 @@ private fun PasswordOptionsPanelPreview() {
     PasswordOptionsPanel(
         options = PasswordOptions(),
         onOptionsChange = {},
-        onGenerateClick = {}
+        onGenerateClick = {},
+        onShowError = {}
     )
 }

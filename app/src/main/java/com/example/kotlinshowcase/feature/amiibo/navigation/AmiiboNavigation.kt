@@ -34,7 +34,6 @@ fun AmiiboNavigation(
         composable(AmiiboScreen.List.route) {
             LaunchedEffect(Unit) {
                 if (viewModel.state.value is AmiiboListState.Success) {
-                    // Se já tiver dados, não precisa recarregar
                     return@LaunchedEffect
                 }
                 viewModel.loadAmiibos()

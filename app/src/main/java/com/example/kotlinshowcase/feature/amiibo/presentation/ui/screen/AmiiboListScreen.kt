@@ -82,7 +82,6 @@ fun AmiiboListScreen(
             searchJob?.cancel()
             searchJob = viewModel.searchAmiibos(searchQuery)
         } else if (!isLoadingInitial) {
-            // If the search is cleared, reload the complete list
             searchJob?.cancel()
             viewModel.loadAmiibos()
         }
@@ -135,7 +134,7 @@ private fun AmiiboListContent(
                 .padding(padding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            // Barra de pesquisa
+
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = onSearchQueryChange,
@@ -165,7 +164,7 @@ private fun AmiiboListContent(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(16.dp)
                     ) {
-                        // Placeholder da barra de busca
+
                         item {
                             Box(
                                 modifier = Modifier
@@ -177,7 +176,7 @@ private fun AmiiboListContent(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                         
-                        // Placeholder dos itens
+
                         items(5) {
                             ShimmerItem(
                                 modifier = Modifier

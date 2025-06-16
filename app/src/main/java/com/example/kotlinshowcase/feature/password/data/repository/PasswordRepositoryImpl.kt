@@ -29,10 +29,10 @@ class PasswordRepositoryImpl(
         
         var score = 0
         
-        // Length score (max 50 points)
+
         score += min(50, password.length * 2)
         
-        // Complexity score (max 50 points)
+
         val hasUppercase = password.any { it.isUpperCase() }
         val hasLowercase = password.any { it.isLowerCase() }
         val hasDigit = password.any { it.isDigit() }

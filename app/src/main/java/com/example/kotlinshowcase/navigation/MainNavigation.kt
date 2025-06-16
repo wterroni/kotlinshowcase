@@ -1,6 +1,5 @@
 package com.example.kotlinshowcase.navigation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -35,19 +34,18 @@ fun MainNavigation(
         startDestination = startDestination,
         modifier = modifier
     ) {
-        // Home Screen
+
         composable(Screen.HOME_ROUTE) {
             HomeScreen(
                 onNavigate = { route ->
                     navController.navigate(route) {
-                        // Evita múltiplas cópias da mesma tela na pilha
                         launchSingleTop = true
                     }
                 }
             )
         }
         
-        // Amiibo Feature
+
         composable(Screen.AMIIBO_ROUTE) {
             val amiiboViewModel: AmiiboListViewModel = koinViewModel()
             AmiiboNavigation(
@@ -56,14 +54,14 @@ fun MainNavigation(
             )
         }
         
-        // Text Utils Feature
+
         composable(Screen.TEXT_UTILS_ROUTE) {
             TextUtilsScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }
         
-        // Password Generator Feature
+
         composable(Screen.PASSWORD_GENERATOR_ROUTE) {
             PasswordGeneratorScreen(
                 onBackClick = { navController.popBackStack() }

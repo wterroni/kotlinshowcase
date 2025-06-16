@@ -57,7 +57,7 @@ fun PasswordDisplay(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Password text with copy button
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
@@ -94,7 +94,7 @@ fun PasswordDisplay(
         }
 
         
-        // Strength indicator
+
         if (password.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
             Row(
@@ -115,7 +115,7 @@ fun PasswordDisplay(
             }
         }
         
-        // Copy feedback
+
         if (isCopied) {
             Text(
                 text = "Copied to clipboard!",
