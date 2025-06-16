@@ -12,12 +12,12 @@ import org.koin.dsl.module
  * Koin module for the Password feature.
  */
 val passwordModule = module {
-    // Data layer
+
     single<PasswordRepository> { PasswordRepositoryImpl(PasswordGeneratorImpl()) }
     
-    // Domain layer
+
     factory { GeneratePasswordUseCase() }
     
-    // Presentation layer
+
     viewModel { PasswordGeneratorViewModel(get()) }
 }

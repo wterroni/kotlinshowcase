@@ -11,9 +11,7 @@ package com.example.kotlinshowcase.feature.textutils.domain.usecase
  * 
  * Example:
  * ```
- * capitalizeWords("hello world")  // returns "Hello World"
- * capitalizeWords("  multiple   spaces")  // returns "  Multiple   Spaces"
- * capitalizeWords("UPPER CASE")  // returns "Upper Case"
+
  * ```
  */
 class CapitalizeWordsUseCase {

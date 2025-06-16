@@ -19,6 +19,7 @@ import org.koin.androidx.compose.koinViewModel
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
+
 @Composable
 fun AmiiboNavigation(
     modifier: Modifier = Modifier,

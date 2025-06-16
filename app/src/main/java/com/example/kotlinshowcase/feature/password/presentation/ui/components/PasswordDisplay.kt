@@ -23,9 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.example.kotlinshowcase.core.theme.Purple80
 import com.example.kotlinshowcase.feature.password.domain.model.PasswordStrength
 
-/**
- * Displays the generated password with copy functionality.
- */
+
 @Composable
 fun PasswordDisplay(
     password: String,

@@ -14,13 +14,6 @@ import com.example.kotlinshowcase.feature.password.presentation.screen.PasswordG
 import com.example.kotlinshowcase.feature.textutils.presentation.ui.screen.TextUtilsScreen
 import org.koin.androidx.compose.koinViewModel
 
-/**
- * Main navigation component that handles the app's navigation graph.
- * 
- * @param modifier Modifier for the NavHost
- * @param navController NavController for navigation
- * @param startDestination The starting destination route
- */
 @Composable
 fun MainNavigation(
     modifier: Modifier = Modifier,
