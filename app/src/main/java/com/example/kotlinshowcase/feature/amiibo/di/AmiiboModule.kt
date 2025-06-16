@@ -9,6 +9,6 @@ import org.koin.dsl.module
  * Includes ViewModels and other specific dependencies for this module.
  */
 val amiiboModule = module {
-    // ViewModels
+
     viewModel { AmiiboListViewModel(get()) }
 }

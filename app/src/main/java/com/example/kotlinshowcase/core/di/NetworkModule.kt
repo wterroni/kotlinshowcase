@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit
  * including the HTTP client, API services, and repositories that access the network.
  */
 val networkModule = module {
-    // Configuração do cliente HTTP
     single<HttpClient> {
         HttpClient(OkHttp) {
             engine {
@@ -39,32 +38,27 @@ val networkModule = module {
             }
 
 
-            // Configuração de logging
             install(Logging) {
                 logger = object : Logger {
                     override fun log(message: String) {
-                        Log.d("Ktor", message)
+                        Log.d("Ktor", "HTTP Request: $message")
                     }
                 }
                 level = LogLevel.ALL
             }
 
-            // Configuração de timeout
             install(HttpTimeout) {
                 requestTimeoutMillis = 15000L
                 connectTimeoutMillis = 15000L
                 socketTimeoutMillis = 15000L
             }
 
-            // Observador de resposta
             install(ResponseObserver) {
                 onResponse { response ->
-                    Log.d("Ktor", "HTTP status: ${response.status.value}")
+                    Log.d("Ktor", "HTTP Response - Status: ${response.status.value}")
                 }
             }
 
-
-            // Configuração de negociação de conteúdo (JSON)
             install(ContentNegotiation) {
                 json(Json {
                     prettyPrint = true
@@ -76,12 +70,10 @@ val networkModule = module {
         }
     }
 
-    // Serviços de API
     single<AmiiboService> {
         AmiiboServiceImpl(get())
     }
 
-    // Repositórios
     single<AmiiboRepository> {
         AmiiboRepositoryImpl(get())
     }

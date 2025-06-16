@@ -9,7 +9,6 @@ import org.koin.dsl.module
  * Includes network configurations, repositories, use cases, and ViewModels.
  */
 val appModule = module {
-    // Inclui todos os módulos necessários
     includes(
         networkModule,
         amiiboModule

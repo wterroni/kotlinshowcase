@@ -9,15 +9,15 @@ import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
 /**
- * Classe principal da aplicação que inicializa o Koin para injeção de dependência.
- * Configura o contexto da aplicação e os módulos necessários para o Koin.
+ * Main application class that initializes Koin for dependency injection.
+ * Configures the application context and required modules for Koin.
  */
 class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         
         try {
-            Log.d("MainApplication", "Inicializando Koin...")
+            Log.d("MainApplication", "Initializing Koin...")
             
             startKoin {
                 androidLogger(Level.ERROR)
@@ -26,9 +26,9 @@ class MainApplication : Application() {
                 modules(appModule)
             }
             
-            Log.d("MainApplication", "Koin inicializado com sucesso!")
+            Log.d("MainApplication", "Koin initialized successfully!")
         } catch (e: Exception) {
-            Log.e("MainApplication", "Erro ao inicializar Koin: ${e.message}", e)
+            Log.e("MainApplication", "Error initializing Koin: ${e.message}", e)
             throw e
         }
     }
