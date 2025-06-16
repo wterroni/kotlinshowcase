@@ -33,7 +33,7 @@ fun AmiiboNavigation(
     ) {
         composable(AmiiboScreen.List.route) {
             val onRetry = {
-                viewModel.onSearchQueryChanged("")
+                viewModel.refresh()
             }
             
             AmiiboListScreen(

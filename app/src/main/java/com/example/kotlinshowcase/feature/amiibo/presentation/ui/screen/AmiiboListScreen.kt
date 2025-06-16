@@ -88,9 +88,11 @@ fun AmiiboListScreen(
 
     val amiibos = viewModel.getAmiibos(debouncedSearchQuery).collectAsLazyPagingItems()
 
+    // Trata erros de carregamento
     LaunchedEffect(debouncedSearchQuery) {
         try {
-            viewModel.onSearchQueryChanged(debouncedSearchQuery)
+            // Apenas atualiza a busca quando o debouncedSearchQuery muda
+            // A filtragem é feita automaticamente pelo getAmiibos
         } catch (e: Exception) {
             val errorMessage = e.message ?: context.getString(R.string.error_unknown)
             scope.launch {
