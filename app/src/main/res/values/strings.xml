@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">Kotlin Show Case</string>
+    
+    <!-- Error Messages -->
+    <string name="error_network_generic">Network error. Please try again later.</string>
+    <string name="error_unknown">An unexpected error occurred.</string>
+    <string name="retry">Try again</string>
+    <string name="error_title">Error</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>

@@ -18,10 +18,10 @@ import org.koin.core.logger.Level
 class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        
+
         try {
             Log.d("MainApplication", "Initializing Koin...")
-            
+
             startKoin {
                 androidLogger(Level.ERROR)
                 androidContext(this@MainApplication)
@@ -31,7 +31,7 @@ class MainApplication : Application() {
                     textUtilsModule
                 )
             }
-            
+
             Log.d("MainApplication", "Koin initialized successfully!")
         } catch (e: Exception) {
             Log.e("MainApplication", "Error initializing Koin: ${e.message}", e)

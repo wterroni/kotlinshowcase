@@ -1,8 +1,11 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.kotlinshowcase.feature.amiibo.presentation.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,107 +15,131 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
-import com.example.kotlinshowcase.core.ui.components.ShimmerItem
+import com.example.kotlinshowcase.R
 import com.example.kotlinshowcase.feature.amiibo.domain.model.Amiibo
-import com.example.kotlinshowcase.feature.amiibo.presentation.viewmodel.AmiiboListState
 import com.example.kotlinshowcase.feature.amiibo.presentation.viewmodel.AmiiboListViewModel
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import java.io.IOException
 
 @Composable
 fun AmiiboListScreen(
     viewModel: AmiiboListViewModel = koinViewModel(),
     onAmiiboClick: (Amiibo) -> Unit,
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onRetry: () -> Unit = {}
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
     var searchQuery by remember { mutableStateOf("") }
-    var searchJob by remember { mutableStateOf<Job?>(null) }
-    var isLoadingInitial by remember { mutableStateOf(true) }
+    var debouncedSearchQuery by remember { mutableStateOf("") }
+    
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        searchJob?.cancel()
-        viewModel.loadAmiibos()
-        isLoadingInitial = false
-    }
+    val amiibos = viewModel.getAmiibos(debouncedSearchQuery).collectAsLazyPagingItems()
 
     LaunchedEffect(searchQuery) {
-        if (searchQuery.isNotEmpty()) {
-            searchJob?.cancel()
-            searchJob = viewModel.searchAmiibos(searchQuery)
-        } else if (!isLoadingInitial) {
-            searchJob?.cancel()
-            viewModel.loadAmiibos()
-        }
+        kotlinx.coroutines.delay(500) // 500ms de atraso
+        debouncedSearchQuery = searchQuery
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            searchJob?.cancel()
-        }
+    LaunchedEffect(debouncedSearchQuery) {
+        viewModel.onSearchQueryChanged(debouncedSearchQuery)
     }
 
-    AmiiboListContent(
-        state = state,
-        searchQuery = searchQuery,
-        onSearchQueryChange = { searchQuery = it },
-        onAmiiboClick = onAmiiboClick,
-        onNavigateBack = onNavigateBack,
-        onRetry = { viewModel.loadAmiibos() }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AmiiboListContent(
-    state: AmiiboListState,
-    searchQuery: String,
-    onSearchQueryChange: (String) -> Unit,
-    onAmiiboClick: (Amiibo) -> Unit,
-    onNavigateBack: () -> Unit,
-    onRetry: () -> Unit
-) {
+    LaunchedEffect(amiibos.loadState.refresh) {
+        if (amiibos.loadState.refresh is LoadState.Error) {
+            val errorState = amiibos.loadState.refresh as LoadState.Error
+            val errorMessage = errorState.error.message ?: context.getString(R.string.error_unknown)
+            
+            // Clear the error state first to avoid showing it multiple times
+            viewModel.onErrorShown()
+            
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = errorMessage,
+                    actionLabel = context.getString(R.string.retry),
+                    duration = SnackbarDuration.Long
+                )
+            }
+        }
+    }
+    
+    // Handle retry from error state
+    val onRetryClick: () -> Unit = {
+        println("Retry button clicked")
+        try {
+            // First reset the error state
+            viewModel.onErrorShown()
+            
+            // Then trigger a retry on the paging data
+            amiibos.retry()
+            
+            // Also trigger the ViewModel retry to refresh the data
+            onRetry()
+            
+            println("Retry completed successfully")
+        } catch (e: Exception) {
+            println("Error during retry: ${e.message}")
+            e.printStackTrace()
+            
+            // Show error in snackbar
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    message = "Failed to load data. Please try again.",
+                    actionLabel = "Retry",
+                    duration = SnackbarDuration.Long
+                )
+            }
+        }
+    }
+    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -126,123 +153,196 @@ private fun AmiiboListContent(
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(MaterialTheme.colorScheme.background)
         ) {
-
-            OutlinedTextField(
+            // Search bar
+            TextField(
                 value = searchQuery,
-                onValueChange = onSearchQueryChange,
+                onValueChange = { searchQuery = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                placeholder = { Text("Search Amiibo") },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
-                    )
-                },
+                    .padding(16.dp),
+                placeholder = { Text("Search Amiibo...") },
                 singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Transparent,
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
-                )
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "Clear search",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
             )
 
-            when (state) {
-                is AmiiboListState.Loading -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp)
-                    ) {
+            if (amiibos.loadState.refresh is LoadState.Loading) {
+                LoadingState()
+            } 
 
+            else if (amiibos.itemCount > 0) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    items(amiibos.itemCount) { index ->
+                        amiibos[index]?.let { amiibo ->
+                            AmiiboItem(
+                                amiibo = amiibo,
+                                onClick = { onAmiiboClick(amiibo) },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+
+                    if (amiibos.loadState.append is LoadState.Loading) {
                         item {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(56.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-                        
-
-                        items(5) {
-                            ShimmerItem(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(120.dp)
-                                    .padding(vertical = 8.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                        }
-                    }
-                }
-                is AmiiboListState.Success -> {
-                    val amiibos = state.amiibos
-                    if (amiibos.isEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("No Amiibo available")
-                        }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(amiibos) { amiibo ->
-                                AmiiboItem(
-                                    amiibo = amiibo,
-                                    onClick = { onAmiiboClick(amiibo) }
-                                )
-                            }
-                        }
-                    }
-                }
-                is AmiiboListState.Error -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = "An error occurred: ${state.message}",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.error,
-                                textAlign = TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(
-                                onClick = onRetry,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    contentColor = MaterialTheme.colorScheme.onPrimary
-                                )
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Text("Try again")
+                                CircularProgressIndicator()
                             }
                         }
                     }
+
+                    if (amiibos.loadState.append is LoadState.Error) {
+                        item {
+                            ErrorState(
+                                error = (amiibos.loadState.append as LoadState.Error).error,
+                                onRetry = onRetry,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
                 }
+            }
+            else if (amiibos.loadState.refresh is LoadState.NotLoading) {
+                EmptyState(
+                    message = "No Amiibo found",
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            else if (amiibos.loadState.refresh is LoadState.Error) {
+                ErrorState(
+                    error = (amiibos.loadState.refresh as LoadState.Error).error,
+                    onRetry = onRetryClick,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadingState(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Loading Amiibos...")
+        }
+    }
+}
+
+@Composable
+private fun EmptyState(
+    message: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Warning,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun ErrorState(
+    error: Throwable,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val errorMessage = when (error) {
+        is IOException -> error.message ?: stringResource(R.string.error_network_generic)
+        else -> stringResource(R.string.error_unknown)
+    }
+    
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(32.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Error,
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "An error occurred",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = errorMessage,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = onRetry,
+                modifier = Modifier.padding(horizontal = 32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Try again")
             }
         }
     }
@@ -251,13 +351,14 @@ private fun AmiiboListContent(
 @Composable
 private fun AmiiboItem(
     amiibo: Amiibo,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val cardShape = RoundedCornerShape(16.dp)
 
     Card(
         onClick = onClick,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(120.dp),
         shape = cardShape,

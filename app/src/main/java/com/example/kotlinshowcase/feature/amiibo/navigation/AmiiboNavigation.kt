@@ -13,7 +13,6 @@ import com.example.kotlinshowcase.feature.amiibo.domain.model.Amiibo
 import com.example.kotlinshowcase.feature.amiibo.navigation.model.AmiiboArg
 import com.example.kotlinshowcase.feature.amiibo.presentation.ui.screen.AmiiboDetailScreen
 import com.example.kotlinshowcase.feature.amiibo.presentation.ui.screen.AmiiboListScreen
-import com.example.kotlinshowcase.feature.amiibo.presentation.viewmodel.AmiiboListState
 import com.example.kotlinshowcase.feature.amiibo.presentation.viewmodel.AmiiboListViewModel
 import org.koin.androidx.compose.koinViewModel
 import java.net.URLDecoder
@@ -33,11 +32,8 @@ fun AmiiboNavigation(
         modifier = modifier
     ) {
         composable(AmiiboScreen.List.route) {
-            LaunchedEffect(Unit) {
-                if (viewModel.state.value is AmiiboListState.Success) {
-                    return@LaunchedEffect
-                }
-                viewModel.loadAmiibos()
+            val onRetry = {
+                viewModel.onSearchQueryChanged("")
             }
             
             AmiiboListScreen(
@@ -47,7 +43,8 @@ fun AmiiboNavigation(
                         AmiiboScreen.Detail.createRoute(amiibo)
                     )
                 },
-                onNavigateBack = onBackClick
+                onNavigateBack = onBackClick,
+                onRetry = onRetry
             )
         }
 

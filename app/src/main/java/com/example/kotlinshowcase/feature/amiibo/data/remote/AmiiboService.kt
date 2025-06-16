@@ -20,6 +20,9 @@ class AmiiboServiceImpl(
     }
     
     override suspend fun searchAmiibos(name: String): List<Amiibo> {
+        if (name.isBlank()) {
+            return emptyList()
+        }
         return client.get("https://www.amiiboapi.com/api/amiibo/?name=${name.lowercase()}")
             .body<AmiiboResponse>().amiibo
     }
