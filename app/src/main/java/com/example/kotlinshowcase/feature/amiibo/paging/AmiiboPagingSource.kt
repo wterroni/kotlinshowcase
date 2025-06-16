@@ -22,11 +22,9 @@ class AmiiboPagingSource(
         return try {
             val page = params.key ?: 0
             val pageSize = params.loadSize
-            
-            // Busca todos os amiibos uma única vez
+
             val allAmiibos = repository.getAmiibos()
-            
-            // Se a lista estiver vazia, retorna página vazia
+
             if (allAmiibos.isEmpty()) {
                 return LoadResult.Page(
                     data = emptyList(),

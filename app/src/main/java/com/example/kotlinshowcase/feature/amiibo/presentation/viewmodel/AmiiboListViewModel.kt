@@ -11,9 +11,7 @@ import com.example.kotlinshowcase.feature.amiibo.domain.model.Amiibo
 import com.example.kotlinshowcase.feature.amiibo.domain.repository.AmiiboRepository
 import com.example.kotlinshowcase.feature.amiibo.paging.AmiiboPagingSource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 class AmiiboListViewModel(
     private val repository: AmiiboRepository
@@ -41,9 +39,8 @@ class AmiiboListViewModel(
             }.cachedIn(viewModelScope)
         }
     }
-    
+
     fun refresh() {
-        // O Paging 3 já lida com o refresh automaticamente
-        // quando coletamos o flow novamente na tela
+
     }
 }
