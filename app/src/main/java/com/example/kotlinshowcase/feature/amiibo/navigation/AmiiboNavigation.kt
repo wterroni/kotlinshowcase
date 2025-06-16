@@ -71,7 +71,8 @@ sealed class AmiiboScreen(val route: String) {
 fun AmiiboNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    viewModel: AmiiboListViewModel = koinViewModel()
+    viewModel: AmiiboListViewModel = koinViewModel(),
+    onBackClick: () -> Unit = { navController.popBackStack() }
 ) {
     NavHost(
         navController = navController,
@@ -94,7 +95,7 @@ fun AmiiboNavigation(
                         AmiiboScreen.Detail.createRoute(amiibo)
                     )
                 },
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = onBackClick
             )
         }
 
