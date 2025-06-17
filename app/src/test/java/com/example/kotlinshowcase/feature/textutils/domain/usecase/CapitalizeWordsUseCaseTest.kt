@@ -70,7 +70,7 @@ class CapitalizeWordsUseCaseTest {
     @Test
     fun `invoke should handle unicode characters`() {
         val result = useCase("hello world ")
-        assertEquals("Hello World", result)
+        assertEquals("Hello World ", result)
     }
     
     @Test

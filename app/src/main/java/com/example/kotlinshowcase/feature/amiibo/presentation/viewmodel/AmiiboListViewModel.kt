@@ -19,9 +19,9 @@ class AmiiboListViewModel(
     
     private val pager = Pager(
         config = PagingConfig(
-            pageSize = 100,
+            pageSize = 10,
             enablePlaceholders = false,
-            initialLoadSize = 200
+            initialLoadSize = 10
         ),
         pagingSourceFactory = { AmiiboPagingSource(repository) }
     )
