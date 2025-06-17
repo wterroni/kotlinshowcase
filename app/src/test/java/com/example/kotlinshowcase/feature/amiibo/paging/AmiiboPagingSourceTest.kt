@@ -8,7 +8,6 @@ import com.example.kotlinshowcase.feature.amiibo.domain.model.ReleaseDate
 import com.example.kotlinshowcase.feature.amiibo.domain.repository.AmiiboRepository
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -76,7 +75,7 @@ class AmiiboPagingSourceTest {
     @Test
     fun `load returns empty list when index out of bounds`() = runTest {
         val loadParams = PagingSource.LoadParams.Append(
-            key = 100, // Fora dos limites
+            key = 100,
             loadSize = 10,
             placeholdersEnabled = false
         )
@@ -109,7 +108,7 @@ class AmiiboPagingSourceTest {
                 PagingSource.LoadResult.Page(
                     data = testAmiibos.take(10),
                     prevKey = 0,
-                    nextKey = 2 // Alterado para 2 para o teste fazer sentido
+                    nextKey = 2
                 )
             ),
             anchorPosition = 5,
