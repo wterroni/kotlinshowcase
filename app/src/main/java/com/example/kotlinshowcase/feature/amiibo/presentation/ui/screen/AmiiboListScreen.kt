@@ -62,6 +62,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.kotlinshowcase.R
+import com.example.kotlinshowcase.core.ui.components.ShimmerList
 import com.example.kotlinshowcase.feature.amiibo.domain.model.Amiibo
 import com.example.kotlinshowcase.feature.amiibo.presentation.viewmodel.AmiiboListViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -144,57 +145,59 @@ fun AmiiboListScreen(
                 }
             )
 
-            if (amiibos.loadState.refresh is LoadState.Loading) {
-                LoadingState()
-            } 
-
-            else if (amiibos.itemCount > 0) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    items(amiibos.itemCount) { index ->
-                        amiibos[index]?.let { amiibo ->
-                            AmiiboItem(
-                                amiibo = amiibo,
-                                onClick = { onAmiiboClick(amiibo) },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-
-                    if (amiibos.loadState.append is LoadState.Loading) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
+            ShimmerList(
+                isLoading = amiibos.loadState.refresh is LoadState.Loading,
+                contentAfterLoading = {
+                        if (amiibos.itemCount > 0) {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                             ) {
-                                CircularProgressIndicator()
+                            items(amiibos.itemCount) { index ->
+                                amiibos[index]?.let { amiibo ->
+                                    AmiiboItem(
+                                        amiibo = amiibo,
+                                        onClick = { onAmiiboClick(amiibo) },
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
                             }
-                        }
-                    }
 
-                    if (amiibos.loadState.append is LoadState.Error) {
-                        item {
-                            ErrorState(
-                                error = (amiibos.loadState.append as LoadState.Error).error,
-                                onRetry = onRetry,
-                                modifier = Modifier.fillMaxWidth()
+                            if (amiibos.loadState.append is LoadState.Loading) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                }
+                            }
+
+                            if (amiibos.loadState.append is LoadState.Error) {
+                                item {
+                                    ErrorState(
+                                        error = (amiibos.loadState.append as LoadState.Error).error,
+                                        onRetry = onRetry,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                            }
+                        } else if (amiibos.loadState.refresh is LoadState.NotLoading) {
+                            EmptyState(
+                                message = "No Amiibo found",
+                                modifier = Modifier.fillMaxSize()
                             )
                         }
-                    }
-                }
-            }
-            else if (amiibos.loadState.refresh is LoadState.NotLoading) {
-                EmptyState(
-                    message = "No Amiibo found",
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-            else if (amiibos.loadState.refresh is LoadState.Error) {
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+            
+            if (amiibos.loadState.refresh is LoadState.Error) {
                 ErrorState(
                     error = (amiibos.loadState.refresh as LoadState.Error).error,
                     onRetry = { viewModel.refresh() },
@@ -205,24 +208,6 @@ fun AmiiboListScreen(
     }
 }
 
-@Composable
-private fun LoadingState(
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            CircularProgressIndicator()
-            Spacer(modifier = Modifier.height(16.dp))
-            Text("Loading Amiibos...")
-        }
-    }
-}
 
 @Composable
 private fun EmptyState(
