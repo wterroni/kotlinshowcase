@@ -20,10 +20,4 @@ class GeneratePasswordUseCase : KoinComponent {
     suspend operator fun invoke(options: PasswordOptions): GeneratedPassword {
         return repository.generatePassword(options)
     }
-    
-    companion object {
-        fun module() = org.koin.dsl.module {
-            factory { GeneratePasswordUseCase() }
-        }
-    }
 }
