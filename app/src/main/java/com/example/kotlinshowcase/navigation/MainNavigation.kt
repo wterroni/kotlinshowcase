@@ -20,8 +20,7 @@ fun MainNavigation(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.HOME_ROUTE,
 ) {
-    val actions = remember(navController) { MainActions(navController) }
-    
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
