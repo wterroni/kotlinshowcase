@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
 
 
     // Navigation
@@ -87,6 +88,7 @@ dependencies {
     
     // Ktor
     implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.json)
@@ -104,6 +106,8 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
+    testImplementation(libs.androidx.paging.testing)
+    testImplementation(libs.ktor.client.mock)
     
     // Android Test
     androidTestImplementation(libs.androidx.test.ext.junit)

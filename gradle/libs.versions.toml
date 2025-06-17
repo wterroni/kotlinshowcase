@@ -22,8 +22,8 @@ koin = "3.5.0"
 koinCompose = "3.5.0"
 
 # Coroutines
-coroutines = "1.7.3"
-coroutinesTest = "1.7.3"
+coroutines = "1.8.1"
+coroutinesTest = "1.8.1"
 
 # Lifecycle
 lifecycle = "2.9.1"
@@ -37,12 +37,12 @@ ktor = "2.3.4"
 kotlinx-serialization-json = "1.8.1"
 
 # Testing
-mockk = "1.13.3"
+mockk = "1.13.10"
 turbine = "1.0.0"
 
 # Paging
 paging = "3.3.6"
-pagingCompose = "3.3.6"
+pagingCompose = "3.3.1"
 
 # Compose
 composeBom = "2025.06.00"
@@ -53,6 +53,9 @@ composeUi = "1.6.1"
 
 # Coil
 coilCompose = "2.5.0"
+
+# Material Icons
+materialIconsExtended = "1.7.8"
 
 [libraries]
 # Core
@@ -94,10 +97,12 @@ kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 
 # Ktor
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-android = { group = "io.ktor", name = "ktor-client-android", version.ref = "ktor" }
 ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
 
 # Kotlin Serialization
 kotlinx-serealization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
@@ -105,9 +110,12 @@ kotlinx-serealization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Paging
 androidx-paging-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "paging" }
 androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "pagingCompose" }
+androidx-paging-testing = { group = "androidx.paging", name = "paging-testing", version.ref = "paging" }
+
 
 # Coil
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coilCompose" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
