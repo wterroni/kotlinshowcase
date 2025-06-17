@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.kotlinshowcase.feature.amiibo.domain.model.Amiibo
 
-
 @Composable
 fun AmiiboDetailScreen(
     amiibo: Amiibo,

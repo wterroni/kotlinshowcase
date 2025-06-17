@@ -87,7 +87,7 @@ private fun AnimatedClearButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextUtilsScreen(
     onBackClick: () -> Unit,
@@ -96,9 +96,7 @@ fun TextUtilsScreen(
     var inputText by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
     val capitalizeWordsUseCase: CapitalizeWordsUseCase = koinInject()
-    
-    var isInputFocused by remember { mutableStateOf(false) }
-    
+
     Scaffold(
         topBar = {
             AnimatedVisibility(

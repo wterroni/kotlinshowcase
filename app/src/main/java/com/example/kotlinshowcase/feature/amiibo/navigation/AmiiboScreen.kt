@@ -15,7 +15,7 @@ sealed class AmiiboScreen(val route: String) {
     /**
      * Represents the Amiibo list screen.
      */
-    object List : AmiiboScreen("amiibo_list")
+    data object List : AmiiboScreen("amiibo_list")
     
     /**
      * Represents the Amiibo detail screen.

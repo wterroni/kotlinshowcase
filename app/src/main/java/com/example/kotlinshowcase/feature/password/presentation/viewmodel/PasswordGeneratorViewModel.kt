@@ -74,7 +74,7 @@ class PasswordGeneratorViewModel(
  * Represents the different states of the password generator UI.
  */
 sealed class PasswordGeneratorUiState {
-    object Loading : PasswordGeneratorUiState()
+    data object Loading : PasswordGeneratorUiState()
     data class Success(val password: GeneratedPassword) : PasswordGeneratorUiState()
     data class Error(val message: String) : PasswordGeneratorUiState()
 }
