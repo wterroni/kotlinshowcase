@@ -14,7 +14,6 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class AmiiboPagingSourceTest {
 
     private lateinit var pagingSource: AmiiboPagingSource
@@ -52,7 +51,6 @@ class AmiiboPagingSourceTest {
         val page = result as PagingSource.LoadResult.Page
         assertEquals(10, page.data.size)
         assertEquals(testAmiibos.take(10), page.data)
-        // Na primeira página, prevKey deve ser null
         assertNull(page.prevKey)
         assertEquals(1, (result as? PagingSource.LoadResult.Page)?.nextKey)
     }
@@ -118,9 +116,7 @@ class AmiiboPagingSourceTest {
             config = PagingConfig(10),
             leadingPlaceholderCount = 0
         )
-        
-        // A implementação retorna nextKey - 1 quando prevKey é null
-        // Como nextKey é 2, deve retornar 1
+
         assertEquals(1, pagingSource.getRefreshKey(state))
     }
 }
