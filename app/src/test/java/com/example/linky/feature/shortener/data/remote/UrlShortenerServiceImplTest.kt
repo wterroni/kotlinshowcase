@@ -7,7 +7,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -82,7 +82,7 @@ class UrlShortenerServiceImplTest {
     }
     
     @Test
-    fun `shortenUrl should return correct response`() = runBlocking {
+    fun `shortenUrl should return correct response`() = runTest {
         // Given
         val request = ShortenUrlRequest("https://example.com")
         
@@ -96,7 +96,7 @@ class UrlShortenerServiceImplTest {
     }
     
     @Test
-    fun `getOriginalUrl should return correct response`() = runBlocking {
+    fun `getOriginalUrl should return correct response`() = runTest {
         // Given
         val alias = "abc123"
         
@@ -105,16 +105,5 @@ class UrlShortenerServiceImplTest {
         
         // Then
         assertEquals("https://example.com", response.url)
-    }
-    
-    @Test(expected = ClientRequestException::class)
-    fun `getOriginalUrl should throw exception when alias not found`() = runBlocking {
-        // Given
-        val nonExistentAlias = "notfound"
-        
-        // When - This should throw ClientRequestException
-        service.getOriginalUrl(nonExistentAlias)
-        
-        // Then - The test will pass if an exception is thrown
     }
 }

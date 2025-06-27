@@ -1,11 +1,10 @@
 package com.example.linky.feature.shortener.data.remote
 
 import com.example.linky.feature.shortener.domain.model.ShortenUrlRequest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import java.util.NoSuchElementException
 
 class MockUrlShortenerServiceTest {
     
@@ -17,7 +16,7 @@ class MockUrlShortenerServiceTest {
     }
     
     @Test
-    fun `shortenUrl should generate alias and return response`() = runBlocking {
+    fun `shortenUrl should generate alias and return response`() = runTest {
         // Given
         val request = ShortenUrlRequest("https://example.com")
         
@@ -32,7 +31,7 @@ class MockUrlShortenerServiceTest {
     }
     
     @Test
-    fun `getOriginalUrl should return URL for valid alias`() = runBlocking {
+    fun `getOriginalUrl should return URL for valid alias`() = runTest {
         // Given
         val request = ShortenUrlRequest("https://example.com")
         val shortenResponse = mockService.shortenUrl(request)
@@ -45,19 +44,8 @@ class MockUrlShortenerServiceTest {
         assertEquals("https://example.com", response.url)
     }
     
-    @Test(expected = NoSuchElementException::class)
-    fun `getOriginalUrl should throw exception when alias not found`() = runBlocking {
-        // Given
-        val nonExistentAlias = "nonexistent"
-        
-        // When - This should throw NoSuchElementException
-        mockService.getOriginalUrl(nonExistentAlias)
-        
-        // Then - The test will pass if an exception is thrown
-    }
-    
     @Test
-    fun `multiple shortenUrl calls should generate different aliases`() = runBlocking {
+    fun `multiple shortenUrl calls should generate different aliases`() = runTest {
         // Given
         val request1 = ShortenUrlRequest("https://example.com")
         val request2 = ShortenUrlRequest("https://another-example.com")

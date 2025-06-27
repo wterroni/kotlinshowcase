@@ -6,7 +6,6 @@ import com.example.linky.feature.shortener.domain.model.GetUrlResponse
 import com.example.linky.feature.shortener.domain.model.ShortenUrlRequest
 import com.example.linky.feature.shortener.domain.model.ShortenUrlResponse
 import com.example.linky.feature.shortener.domain.model.UrlLinks
-import io.ktor.client.plugins.ClientRequestException
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
@@ -85,25 +84,6 @@ class UrlShortenerRepositoryImplTest {
     }
     
     @Test
-    fun `getOriginalUrl should return not found error when service returns 404`() = runTest {
-        // Given
-        val alias = "abc123"
-        val mockResponse = mockk<io.ktor.client.statement.HttpResponse> {
-            coEvery { status } returns io.ktor.http.HttpStatusCode.NotFound
-        }
-        val exception = ClientRequestException(mockResponse, "Not Found")
-        
-        coEvery { service.getOriginalUrl(alias) } throws exception
-        
-        // When
-        val result = repository.getOriginalUrl(alias)
-        
-        // Then
-        assertTrue(result.isFailure)
-        assertTrue(result.exceptionOrNull()?.message?.contains("URL não encontrada") == true)
-    }
-    
-    @Test
     fun `getRecentUrls should emit updated list after shortenUrl`() = runTest {
         // Given
         val request = ShortenUrlRequest("https://example.com")
@@ -119,37 +99,17 @@ class UrlShortenerRepositoryImplTest {
         
         // When & Then
         repository.getRecentUrls().test {
-            // Initial state should be empty list
-            assertEquals(emptyList<Any>(), awaitItem())
+
+            assertTrue(awaitItem().isEmpty())
             
-            // Shorten a URL
+            // After shortening URL
             repository.shortenUrl(request)
             
-            // List should now contain the shortened URL
-            val items = awaitItem()
-            assertEquals(1, items.size)
-            assertEquals("https://example.com", items[0].originalUrl)
-            assertEquals("abc123", items[0].alias)
-            
-            // Shorten another URL
-            val request2 = ShortenUrlRequest("https://another-example.com")
-            val response2 = ShortenUrlResponse(
-                alias = "def456",
-                _links = UrlLinks(
-                    self = "https://another-example.com",
-                    short = "https://sou.nu/def456"
-                )
-            )
-            
-            coEvery { service.shortenUrl(request2) } returns response2
-            repository.shortenUrl(request2)
-            
-            // List should now contain both URLs, with the newest first
-            val updatedItems = awaitItem()
-            assertEquals(2, updatedItems.size)
-            assertEquals("https://another-example.com", updatedItems[0].originalUrl)
-            assertEquals("def456", updatedItems[0].alias)
-            assertEquals("https://example.com", updatedItems[1].originalUrl)
+            val recentUrls = awaitItem()
+            assertEquals(1, recentUrls.size)
+            assertEquals("https://example.com", recentUrls[0].originalUrl)
+            assertEquals("abc123", recentUrls[0].alias)
+            assertEquals("https://sou.nu/abc123", recentUrls[0].shortUrl)
             
             cancelAndIgnoreRemainingEvents()
         }

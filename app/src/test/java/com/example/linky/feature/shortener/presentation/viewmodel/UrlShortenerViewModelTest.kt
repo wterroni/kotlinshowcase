@@ -77,16 +77,18 @@ class UrlShortenerViewModelTest {
             shortUrl = "https://sou.nu/abc123"
         )
         
-        viewModel.onUrlTextChanged(url)
         coEvery { shortenUrlUseCase(url) } returns Result.success(shortUrl)
         
         // When & Then
         viewModel.uiState.test {
             // Initial state
-            assertEquals("", awaitItem().urlText)
+            val initialState = awaitItem()
+            assertEquals("", initialState.urlText)
             
-            // After text change
-            assertEquals(url, awaitItem().urlText)
+            // Update URL text
+            viewModel.onUrlTextChanged(url)
+            val updatedTextState = awaitItem()
+            assertEquals(url, updatedTextState.urlText)
             
             // Shorten URL
             viewModel.shortenUrl()
@@ -110,18 +112,20 @@ class UrlShortenerViewModelTest {
     fun `shortenUrl should update state with loading and error`() = runTest {
         // Given
         val url = "https://example.com"
-        val errorMessage = "Falha na conexão"
+        val errorMessage = "Failed to connect"
         
-        viewModel.onUrlTextChanged(url)
         coEvery { shortenUrlUseCase(url) } returns Result.failure(Exception(errorMessage))
         
         // When & Then
         viewModel.uiState.test {
             // Initial state
-            assertEquals("", awaitItem().urlText)
+            val initialState = awaitItem()
+            assertEquals("", initialState.urlText)
             
-            // After text change
-            assertEquals(url, awaitItem().urlText)
+            // Update URL text
+            viewModel.onUrlTextChanged(url)
+            val updatedTextState = awaitItem()
+            assertEquals(url, updatedTextState.urlText)
             
             // Shorten URL
             viewModel.shortenUrl()
@@ -144,21 +148,22 @@ class UrlShortenerViewModelTest {
     fun `clearError should set errorMessage to null`() = runTest {
         // Given
         val url = "https://example.com"
-        val errorMessage = "Falha na conexão"
+        val errorMessage = "Failed to connect"
         
-        viewModel.onUrlTextChanged(url)
         coEvery { shortenUrlUseCase(url) } returns Result.failure(Exception(errorMessage))
         
         // When & Then
         viewModel.uiState.test {
-            // Skip initial states
-            skipItems(2)
+            // Initial state
+            val initialState = awaitItem()
+            
+            // Update URL text
+            viewModel.onUrlTextChanged(url)
+            skipItems(1) // Skip the text update state
             
             // Shorten URL
             viewModel.shortenUrl()
-            
-            // Skip loading state
-            skipItems(1)
+            skipItems(1) // Skip loading state
             
             // Error state
             val errorState = awaitItem()
@@ -177,16 +182,13 @@ class UrlShortenerViewModelTest {
     
     @Test
     fun `shortenUrl should not do anything when url is empty`() = runTest {
-        // Given
-        viewModel.onUrlTextChanged("")
+        // Given - empty initial state
         
         // When & Then
         viewModel.uiState.test {
             // Initial state
-            skipItems(1)
-            
-            // After text change (empty)
-            assertEquals("", awaitItem().urlText)
+            val initialState = awaitItem()
+            assertEquals("", initialState.urlText)
             
             // Shorten URL with empty text
             viewModel.shortenUrl()

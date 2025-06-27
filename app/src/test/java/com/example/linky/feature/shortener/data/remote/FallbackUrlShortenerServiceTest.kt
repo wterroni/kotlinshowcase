@@ -4,13 +4,18 @@ import com.example.linky.feature.shortener.domain.model.GetUrlResponse
 import com.example.linky.feature.shortener.domain.model.ShortenUrlRequest
 import com.example.linky.feature.shortener.domain.model.ShortenUrlResponse
 import com.example.linky.feature.shortener.domain.model.UrlLinks
+import com.example.linky.util.MockLogRule
 import io.mockk.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 class FallbackUrlShortenerServiceTest {
+    
+    @get:Rule
+    val mockLogRule = MockLogRule()
     
     private lateinit var realService: UrlShortenerServiceImpl
     private lateinit var mockService: MockUrlShortenerService
@@ -34,7 +39,7 @@ class FallbackUrlShortenerServiceTest {
     }
     
     @Test
-    fun `shortenUrl should use real service when it succeeds`() = runBlocking {
+    fun `shortenUrl should use real service when it succeeds`() = runTest {
         // Given
         coEvery { realService.shortenUrl(testRequest) } returns testResponse
         
@@ -48,7 +53,7 @@ class FallbackUrlShortenerServiceTest {
     }
     
     @Test
-    fun `shortenUrl should fall back to mock service when real service fails`() = runBlocking {
+    fun `shortenUrl should fall back to mock service when real service fails`() = runTest {
         // Given
         coEvery { realService.shortenUrl(testRequest) } throws RuntimeException("API Error")
         coEvery { mockService.shortenUrl(testRequest) } returns testResponse
@@ -63,7 +68,7 @@ class FallbackUrlShortenerServiceTest {
     }
     
     @Test
-    fun `getOriginalUrl should use real service when it succeeds`() = runBlocking {
+    fun `getOriginalUrl should use real service when it succeeds`() = runTest {
         // Given
         val alias = "abc123"
         coEvery { realService.getOriginalUrl(alias) } returns testGetResponse
@@ -78,7 +83,7 @@ class FallbackUrlShortenerServiceTest {
     }
     
     @Test
-    fun `getOriginalUrl should fall back to mock service when real service fails`() = runBlocking {
+    fun `getOriginalUrl should fall back to mock service when real service fails`() = runTest {
         // Given
         val alias = "abc123"
         coEvery { realService.getOriginalUrl(alias) } throws RuntimeException("API Error")
