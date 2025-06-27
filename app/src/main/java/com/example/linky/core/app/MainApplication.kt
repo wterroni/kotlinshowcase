@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.Composable
 import com.example.linky.di.appModule
+import com.example.linky.feature.shortener.di.shortenerModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.compose.KoinApplication
@@ -26,7 +27,8 @@ class MainApplication : Application() {
                 androidContext(this@MainApplication)
 
                 modules(
-                    appModule
+                    appModule,
+                    shortenerModule
                 )
             }
 
@@ -46,7 +48,7 @@ fun KoinApp(
     content: @Composable () -> Unit
 ) {
     KoinApplication(application = {
-        modules(appModule)
+        modules(appModule, shortenerModule)
     }) {
         content()
     }

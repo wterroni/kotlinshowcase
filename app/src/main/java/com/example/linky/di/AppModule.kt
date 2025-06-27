@@ -1,6 +1,7 @@
 package com.example.linky.di
 
 import com.example.linky.core.di.networkModule
+import com.example.linky.feature.shortener.di.shortenerModule
 import org.koin.dsl.module
 
 /**
@@ -9,6 +10,7 @@ import org.koin.dsl.module
  */
 val appModule = module {
     includes(
-        networkModule
+        networkModule,
+        shortenerModule
     )
 }
