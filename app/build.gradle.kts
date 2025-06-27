@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.kotlinshowcase"
-    compileSdk = 35
+    namespace = "com.example.linky"
+    compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.kotlinshowcase"
-        minSdk = 28
-        targetSdk = 35
+        applicationId = "com.example.linky"
+        minSdk = 26
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 

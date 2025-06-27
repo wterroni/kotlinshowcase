@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Kotlin Show Case"
+rootProject.name = "Linky"
 include(":app")
  

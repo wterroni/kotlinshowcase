@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Kotlin Show Case</string>
+    <string name="app_name">Linky</string>
     
     <!-- Error Messages -->
     <string name="error_network_generic">Network error. Please try again later.</string>
